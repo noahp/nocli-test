@@ -1,0 +1,3 @@
+[submodule "libs/nocli"]
+	path = libs/nocli
+	url = https://github.com/noahp/nocli.git
