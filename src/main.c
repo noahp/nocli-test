@@ -193,7 +193,7 @@ int main(void)
 
   // setup cli
   // setup context
-  struct NocliCommand cmdlist[] ={
+  static struct NocliCommand cmdlist[] ={
     {
       .name = "function1",
       .function = function1,
@@ -203,7 +203,7 @@ int main(void)
       .function = function2,
     },
   };
-  struct Nocli nocli_ctx = {
+  static struct Nocli nocli_ctx = {
     .output_stream = output,
     .command_table = cmdlist,
     .command_table_length = sizeof(cmdlist)/sizeof(cmdlist[0]),
