@@ -34,7 +34,10 @@
 			<Add directory="./libs/nocli/src" />
 		</Compiler>
 		<Linker>
-			<Add option="-mthumb -mcpu=cortex-m0plus --specs=nano.specs -Wl,--gc-sections,-Map,kl24.map,-Tlink.ld" />
+			<Add option="-mthumb" />
+			<Add option="-mcpu=cortex-m0plus" />
+			<Add option="--specs=nosys.specs" />
+			<Add option="--specs=nano.specs -Wl,--gc-sections,-Map,kl24.map,-Tlink.ld" />
 		</Linker>
 		<Unit filename="Makefile" />
 		<Unit filename="libs/nocli/src/nocli.c">
