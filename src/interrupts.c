@@ -116,6 +116,7 @@ void USBOTGIntHandler(void)
 // DefaultIntHandler is used for unpopulated interrupts
 void DefaultIntHandler(void)
 {
+    __asm__("BKPT");
     // Go into an infinite loop.
     while(1);
 }

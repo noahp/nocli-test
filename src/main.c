@@ -10,6 +10,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include "nocli.h"
+
+//// need to define _sbrk for sprintf (malloc)
+//extern int __end__;
+//extern caddr_t _sbrk(int incr);
+//extern caddr_t _sbrk(int incr)
+//{
+//    static unsigned char *heap = NULL;
+//    unsigned char *prev_heap;
+//
+//    if(heap == NULL){
+//        heap = (unsigned char *)&__end__;
+//    }
+//    prev_heap = heap;
+//
+//    heap += incr;
+//
+//    return (caddr_t)prev_heap;
+//}
 
 // makes heap go
 caddr_t
@@ -59,11 +78,11 @@ static void main_init_io(void)
   GPIOB_PDDR |= (1 << 0);
 }
 
-// static void delay_ms(uint32_t ms)
-// {
-//    uint32_t start = systick_getms();
-//    while(systick_getms() - start < ms);
-// }
+static void delay_ms(uint32_t ms)
+{
+   uint32_t start = systick_getms();
+   while(systick_getms() - start < ms);
+}
 
 static void main_init_uart(void)
 {
@@ -132,6 +151,34 @@ static int main_poll_uart(uint8_t *pChr)
   return -1;
 }
 
+static void output(char *data, size_t length)
+{
+  for(size_t i=0; i<length; i++){
+    delay_ms(2);
+    usb_send_data((uint8_t*)&data[i], 1);
+  }
+}
+
+size_t _write(int fd, const unsigned char *buf, size_t count){
+  (void)fd;
+  output((char*)buf, count);
+  return count;
+}
+
+static void function1(int argc, char **argv){
+    (void)argv;
+    printf("[Executing function1] %d\r\n", argc);
+    for(int i=0; i<argc; i++){
+        printf("%s ", argv[i]);
+    }
+    printf("\r\n");
+}
+
+static void function2(int argc, char **argv){
+    (void)argv;
+    printf("[Executing function2] %d\r\n", argc);
+}
+
 int main(void)
 {
   uint8_t   rxData;
@@ -143,6 +190,28 @@ int main(void)
 
   // usb init
   usb_main_init();
+
+  // setup cli
+  // setup context
+  struct NocliCommand cmdlist[] ={
+    {
+      .name = "function1",
+      .function = function1,
+    },
+    {
+      .name = "function2",
+      .function = function2,
+    },
+  };
+  struct Nocli nocli_ctx = {
+    .output_stream = output,
+    .command_table = cmdlist,
+    .command_table_length = sizeof(cmdlist)/sizeof(cmdlist[0]),
+    .prefix_string = "nocli$ ",
+    .error_string = "error, command not found",
+    .echo_on = true,
+  };
+  (void)Nocli_Init(&nocli_ctx);
 
   while (1) {
     // led task
@@ -157,7 +226,7 @@ int main(void)
     }
 
     if(gotCharacter > 0){
-
+      Nocli_Feed(&nocli_ctx, (char*)&rxData, 1);
     }
   }
 

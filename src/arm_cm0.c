@@ -31,7 +31,7 @@ void stop (void)
 	/* WFI instruction will start entry into STOP mode */
 #ifndef KEIL
         // If not using KEIL's uVision use the standard assembly command
-	asm("WFI");
+	__asm__("WFI");
 #else
         // If using KEIL's uVision, use the CMSIS intrinsic
 	__wfi();
@@ -59,7 +59,7 @@ void wait (void)
 	/* WFI instruction will start entry into WAIT mode */
 #ifndef KEIL
         // If not using KEIL's uVision use the standard assembly command
-	asm("WFI");
+	__asm__("WFI");
 #else
         // If using KEIL's uVision, use the CMSIS intrinsic
     __wfi();
